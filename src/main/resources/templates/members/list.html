@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Miembros')}"></head>
+<body><div th:replace="~{fragments :: nav}"></div>
+<main class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3"><div><p class="eyebrow">MAESTRO</p><h1>Miembros</h1></div><a class="btn btn-primary" th:href="@{/members/new}">Nuevo miembro</a></div>
+    <form class="filter-bar row g-2 mb-3" method="get" th:action="@{/members}">
+        <div class="col-md-6"><input class="form-control" name="q" th:value="${q}" placeholder="Buscar por DNI o nombre"></div>
+        <div class="col-md-3"><select class="form-select" name="status"><option value="">Todos los estados</option><option value="ACTIVO" th:selected="${status == 'ACTIVO'}">Activo</option><option value="INACTIVO" th:selected="${status == 'INACTIVO'}">Inactivo</option></select></div>
+        <div class="col-md-3"><button class="btn btn-outline-primary w-100">Filtrar</button></div>
+    </form>
+    <div class="alert alert-success" th:if="${success}" th:text="${success}"></div><div class="table-responsive"><table class="table align-middle"><thead><tr><th>DNI</th><th>Nombre</th><th>Contacto</th><th>Estado</th><th></th></tr></thead><tbody>
+    <tr th:each="member : ${members}"><td th:text="${member.dni}"></td><td th:text="${member.nombres + ' ' + member.apellidos}"></td><td><span th:text="${member.correo}"></span><small class="d-block text-muted" th:text="${member.telefono}"></small></td><td><span class="status" th:text="${member.estado}"></span></td><td class="text-end"><a class="btn btn-sm btn-outline-secondary" th:href="@{/members/{id}/edit(id=${member.id})}">Editar</a><form class="d-inline" th:action="@{/members/{id}/delete(id=${member.id})}" method="post" sec:authorize="hasRole('ADMIN')"><button class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar miembro?')">Desactivar</button></form></td></tr>
+    <tr th:if="${#lists.isEmpty(members)}"><td colspan="5" class="text-center py-4 text-muted">No se encontraron miembros.</td></tr>
+    </tbody></table></div>
+</main></body></html>
