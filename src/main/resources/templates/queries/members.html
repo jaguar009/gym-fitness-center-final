@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Consulta de miembros')}"></head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<main class="container py-4">
+    <div class="mb-3"><p class="eyebrow">CONSULTA 01</p><h1>Consulta de miembros</h1></div>
+    <form class="filter-bar row g-2 mb-3" method="get" th:action="@{/queries/members}">
+        <div class="col-md-7">
+            <label class="form-label" for="memberQuery">DNI o nombre</label>
+            <input class="form-control" id="memberQuery" name="q" th:value="${q}" placeholder="DNI o nombre">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" for="memberStatus">Estado</label>
+            <select class="form-select" id="memberStatus" name="status">
+                <option value="">Todos</option>
+                <option value="ACTIVO" th:selected="${status == 'ACTIVO'}">Activo</option>
+                <option value="INACTIVO" th:selected="${status == 'INACTIVO'}">Inactivo</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end"><button class="btn btn-outline-primary w-100">Consultar</button></div>
+    </form>
+    <div class="table-responsive">
+        <table class="table">
+            <thead><tr><th>DNI</th><th>Miembro</th><th>Correo</th><th>Teléfono</th><th>Estado</th></tr></thead>
+            <tbody>
+            <tr th:each="row : ${rows}">
+                <td th:text="${row.dni}"></td>
+                <td th:text="${row.nombres + ' ' + row.apellidos}"></td>
+                <td th:text="${row.correo}"></td>
+                <td th:text="${row.telefono}"></td>
+                <td th:text="${row.estado}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(rows)}"><td colspan="5" class="text-center py-4 text-muted">Sin resultados.</td></tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>
