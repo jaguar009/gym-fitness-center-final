@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Consulta de pagos')}"></head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<main class="container py-4">
+    <div class="mb-3"><p class="eyebrow">CONSULTA 02</p><h1>Consulta de pagos</h1></div>
+    <form class="filter-bar row g-2 mb-3" method="get" th:action="@{/queries/payments}">
+        <div class="col-md-4">
+            <label class="form-label" for="paymentFrom">Desde</label>
+            <input class="form-control" type="date" id="paymentFrom" name="from" th:value="${from}">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="paymentTo">Hasta</label>
+            <input class="form-control" type="date" id="paymentTo" name="to" th:value="${to}">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="paymentMethod">Método</label>
+            <select class="form-select" id="paymentMethod" name="method">
+                <option value="">Todos</option>
+                <option value="EFECTIVO" th:selected="${method == 'EFECTIVO'}">Efectivo</option>
+                <option value="YAPE" th:selected="${method == 'YAPE'}">Yape</option>
+                <option value="TARJETA" th:selected="${method == 'TARJETA'}">Tarjeta</option>
+                <option value="TRANSFERENCIA" th:selected="${method == 'TRANSFERENCIA'}">Transferencia</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end"><button class="btn btn-outline-primary w-100">Consultar</button></div>
+    </form>
+    <div class="table-responsive">
+        <table class="table">
+            <thead><tr><th>Fecha</th><th>Miembro</th><th>Monto</th><th>Método</th><th>Concepto</th></tr></thead>
+            <tbody>
+            <tr th:each="row : ${rows}">
+                <td th:text="${row.fechaPago}"></td>
+                <td th:text="${row.member.nombres + ' ' + row.member.apellidos}"></td>
+                <td th:text="${row.monto}"></td>
+                <td th:text="${row.metodoPago}"></td>
+                <td th:text="${row.concepto}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(rows)}"><td colspan="5" class="text-center py-4 text-muted">Sin resultados.</td></tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

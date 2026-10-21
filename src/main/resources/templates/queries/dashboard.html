@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Consultas')}"></head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<main class="container py-4">
+    <p class="eyebrow">CONSULTAS</p>
+    <h1>Consultar información</h1>
+    <p class="text-muted">Filtra los registros del gimnasio y revisa los resultados en pantalla.</p>
+    <section class="content-section mt-4">
+        <h2>Consultas disponibles</h2>
+        <div class="row g-3 mt-1">
+            <div class="col-md-6">
+                <a class="quick-link" th:href="@{/queries/members}">
+                    <b>Miembros por estado o búsqueda</b>
+                    <span>Busca por DNI o nombre y filtra por estado.</span>
+                </a>
+            </div>
+            <div class="col-md-6">
+                <a class="quick-link" th:href="@{/queries/payments}">
+                    <b>Pagos por periodo y método</b>
+                    <span>Consulta los pagos registrados entre dos fechas.</span>
+                </a>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>
