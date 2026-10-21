@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Panel principal')}"></head>
+<body>
+<div th:replace="~{fragments :: nav}"></div>
+<main class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div><p class="eyebrow">PANEL PRINCIPAL</p><h1>Resumen operativo</h1></div>
+        <span class="text-muted" th:text="${#temporals.format(T(java.time.LocalDate).now(), 'dd/MM/yyyy')}"></span>
+    </div>
+    <div class="row g-3">
+        <div class="col-md-3"><div class="metric"><span>Miembros</span><strong th:text="${memberCount}">0</strong></div></div>
+        <div class="col-md-3"><div class="metric"><span>Miembros activos</span><strong th:text="${activeMemberCount}">0</strong></div></div>
+        <div class="col-md-3"><div class="metric"><span>Clases activas</span><strong th:text="${classCount}">0</strong></div></div>
+        <div class="col-md-3"><div class="metric"><span>Ingresos acumulados</span><strong th:text="${income}">0.00</strong></div></div>
+    </div>
+    <section class="content-section mt-4">
+        <h2>Accesos principales</h2>
+        <p class="text-muted">Consulta la información del gimnasio según los permisos de tu cuenta.</p>
+        <div class="row g-3">
+            <div class="col-md-4"><a class="quick-link" th:href="@{/members}"><b>Miembros</b><span>Buscar y actualizar datos de clientes</span></a></div>
+            <div class="col-md-4"><a class="quick-link" th:href="@{/payments}"><b>Pagos</b><span>Consultar ingresos por periodo</span></a></div>
+            <div class="col-md-4"><a class="quick-link" th:href="@{/queries}"><b>Consultas</b><span>Filtrar miembros y pagos</span></a></div>
+        </div>
+    </section>
+</main>
+</body>
+</html>
