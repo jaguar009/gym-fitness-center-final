@@ -8,14 +8,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.cibertec.gym.model.*;
 import pe.cibertec.gym.repository.*;
-import pe.cibertec.gym.security.RecordStatePolicy;
+import pe.cibertec.gym.service.MemberService;
 
 @Controller @RequestMapping("/members") 
 public class MemberController {
     private final MemberRepository repository;
-    private final RecordStatePolicy statePolicy;
-    public MemberController(MemberRepository repository, RecordStatePolicy statePolicy) {
-        this.repository=repository; this.statePolicy=statePolicy;
+    private final MemberService service;
+    public MemberController(MemberRepository repository, MemberService service) {
+        this.repository=repository; this.service=service;
     }
     @InitBinder("member") public void binding(org.springframework.web.bind.WebDataBinder binder) {
         binder.setAllowedFields("id","dni","nombres","apellidos","telefono","correo","direccion","estado");
@@ -28,16 +28,18 @@ public class MemberController {
     @GetMapping("/{id}/edit") public String edit(@PathVariable Long id,Model model) { model.addAttribute("member",repository.findById(id).orElseThrow()); return "members/form"; }
     @PostMapping @PreAuthorize("hasAnyRole('ADMIN','RECEPCION')")
     public String save(@Valid @ModelAttribute("member") Member member, BindingResult result, RedirectAttributes flash) {
-        if (!result.hasFieldErrors("dni") && (member.getId()==null? repository.existsByDni(member.getDni()):repository.existsByDniAndIdNot(member.getDni(),member.getId()))) result.rejectValue("dni","duplicado","El DNI ya está registrado");
         if(result.hasErrors()) return "members/form";
-        var current=member.getId()==null?null:repository.findById(member.getId()).orElseThrow();
-        statePolicy.checkSave(current==null?null:current.getEstado(),member.getEstado());
-        if (current!=null) member.setRegistrationDate(current.getRegistrationDate());
-        repository.save(member); flash.addFlashAttribute("success","Datos guardados correctamente"); return "redirect:/members";
+        try {
+            service.save(member);
+        } catch (IllegalArgumentException exception) {
+            result.rejectValue("dni", "duplicado", exception.getMessage());
+            return "members/form";
+        }
+        flash.addFlashAttribute("success","Datos guardados correctamente"); return "redirect:/members";
     }
     @PostMapping("/{id}/delete") @PreAuthorize("hasRole('ADMIN')")
     public String deactivate(@PathVariable Long id,RedirectAttributes flash) {
-        var item=repository.findById(id).orElseThrow(); item.setEstado("INACTIVO"); repository.save(item);
+        service.deactivate(id);
         flash.addFlashAttribute("success","Registro desactivado. Se conserva su historial."); return "redirect:/members";
     }
 }

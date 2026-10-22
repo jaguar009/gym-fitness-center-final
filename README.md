@@ -80,9 +80,10 @@ la base. La importación puede generar `.classpath` y `.settings` locales.
 
 `controller` recibe los formularios y prepara las vistas; `model` contiene las
 ocho entidades JPA; `repository` permite consultar y guardar datos; `service`
-concentra las reglas transaccionales de clases e inscripciones; `security`
-valida cambios de estado. Los CRUD sencillos también utilizan repositorios
-directamente desde sus controladores.
+concentra los guardados y bajas de los seis mantenimientos, además de las
+inscripciones y cancelaciones. `security` valida cambios de estado. Los
+controladores conservan consultas de lectura y la presentación de errores;
+las escrituras de negocio pasan por servicios transaccionales.
 
 `EnrollmentService` bloquea la fila de la clase con `PESSIMISTIC_WRITE`, revisa
 estado, duplicados y disponibilidad, y actualiza inscripción y ocupación en
@@ -91,8 +92,37 @@ inscripciones activas; `flush` no significa `commit`.
 
 Ejecutar todas las pruebas con `mvn -B clean verify`. La suite utiliza H2 en
 memoria y Mockito; no modifica SQL Server. Comprueba acceso, CSRF, permisos de
-estado, consultas, duplicados, cancelaciones y rollback. Las pruebas de H2 no
-demuestran por sí solas el comportamiento concurrente específico de SQL Server.
+estado, consultas, duplicados, cancelaciones y rollback. La suite habitual
+ejecuta 91 casos. Las pruebas de H2 no demuestran por sí solas el comportamiento
+concurrente específico de SQL Server.
+
+### Pruebas adicionales en SQL Server
+
+`SqlServerConcurrencyIT` comprueba cuatro escenarios con el motor SQL Server:
+dos solicitudes por el último cupo, duplicado simultáneo, cancelación simultánea
+y rollback de inscripción y contador. Se ejecutan únicamente con el perfil Maven
+`sqlserver-it`; no se incorporan al conteo de los 91 casos habituales.
+
+En Windows, con SQL Server Express, `sqlcmd`, Maven y permisos para crear una
+base temporal, ejecutar:
+
+```powershell
+.\probar-sqlserver.ps1
+```
+
+El script crea una base nueva con prefijo `gymfitnessdb_it_`, aplica una copia
+del esquema y datos académicos, ejecuta las pruebas y elimina exclusivamente
+esa base al terminar. No utiliza `gymfitnessdb`. La clase de integración rechaza
+URLs que no identifiquen una base local reservada para pruebas. Los resultados
+acreditan los cuatro escenarios ensayados, no todas las cargas concurrentes.
+
+### Datos para la demostración
+
+Los pagos iniciales del script corresponden a febrero de 2025. Para mostrarlos,
+seleccionar del 01/02/2025 al 28/02/2025 en las consultas. El filtro predeterminado
+usa el mes actual y puede devolver cero resultados. No cambiar fechas históricas
+para llenar una pantalla; los registros nuevos deben identificarse como datos
+académicos de demostración.
 
 ## Ramas y explicación de los commits
 

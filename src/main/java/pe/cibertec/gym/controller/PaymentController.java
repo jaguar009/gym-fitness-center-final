@@ -8,11 +8,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.cibertec.gym.model.*;
 import pe.cibertec.gym.repository.*;
+import pe.cibertec.gym.service.PaymentService;
 
 @Controller @RequestMapping("/payments")
 public class PaymentController {
     private final PaymentRepository repository; private final MemberRepository members;
-    public PaymentController(PaymentRepository repository,MemberRepository members) {this.repository=repository;this.members=members;}
+    private final PaymentService service;
+    public PaymentController(PaymentRepository repository,MemberRepository members,PaymentService service) {this.repository=repository;this.members=members;this.service=service;}
     @InitBinder("payment") public void binding(org.springframework.web.bind.WebDataBinder binder) {binder.setAllowedFields("id","monto","fechaPago","metodoPago","concepto");}
     @GetMapping public String list(@RequestParam(required=false) java.time.LocalDate from,@RequestParam(required=false) java.time.LocalDate to,@RequestParam(required=false) String method,Model model) {
         var start=from==null?java.time.LocalDate.now().withDayOfMonth(1):from; var end=to==null?java.time.LocalDate.now():to;
@@ -28,9 +30,8 @@ public class PaymentController {
         
         model.addAttribute("members",members.findAll()); model.addAttribute("selectedMemberId",memberId);
         if(result.hasErrors()) return "payments/form";
-        if(item.getId()!=null && !repository.existsById(item.getId())) throw new IllegalArgumentException("El registro no existe");
-        item.setMember(member.orElseThrow());repository.save(item);flash.addFlashAttribute("success","Datos guardados correctamente");return "redirect:/payments";
+        service.save(item,memberId);flash.addFlashAttribute("success","Datos guardados correctamente");return "redirect:/payments";
     }
     @PostMapping("/{id}/delete") @PreAuthorize("hasRole('ADMIN')")
-    public String delete(@PathVariable Long id,RedirectAttributes flash) { repository.deleteById(id); flash.addFlashAttribute("success","Operación completada correctamente");return "redirect:/payments";}
+    public String delete(@PathVariable Long id,RedirectAttributes flash) { service.delete(id); flash.addFlashAttribute("success","Operación completada correctamente");return "redirect:/payments";}
 }

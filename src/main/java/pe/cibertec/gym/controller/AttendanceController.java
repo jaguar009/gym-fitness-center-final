@@ -8,11 +8,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.cibertec.gym.model.*;
 import pe.cibertec.gym.repository.*;
+import pe.cibertec.gym.service.AttendanceService;
 
 @Controller @RequestMapping("/attendance")
 public class AttendanceController {
     private final AttendanceRepository repository; private final MemberRepository members;
-    public AttendanceController(AttendanceRepository repository,MemberRepository members) {this.repository=repository;this.members=members;}
+    private final AttendanceService service;
+    public AttendanceController(AttendanceRepository repository,MemberRepository members,AttendanceService service) {this.repository=repository;this.members=members;this.service=service;}
     @InitBinder("attendanceItem") public void binding(org.springframework.web.bind.WebDataBinder binder) {binder.setAllowedFields("id","fecha","horaEntrada","observacion");}
     @GetMapping public String list(Model model) { model.addAttribute("attendance",repository.findAllByOrderByFechaDescIdDesc()); return "attendance/list"; }
     @GetMapping("/new") public String form(Model model) { model.addAttribute("attendanceItem",new Attendance()); model.addAttribute("members",members.findAll()); return "attendance/form";}
@@ -23,9 +25,8 @@ public class AttendanceController {
         
         model.addAttribute("members",members.findAll()); model.addAttribute("selectedMemberId",memberId);
         if(result.hasErrors()) return "attendance/form";
-        if(item.getId()!=null && !repository.existsById(item.getId())) throw new IllegalArgumentException("El registro no existe");
-        item.setMember(member.orElseThrow());repository.save(item);flash.addFlashAttribute("success","Datos guardados correctamente");return "redirect:/attendance";
+        service.save(item,memberId);flash.addFlashAttribute("success","Datos guardados correctamente");return "redirect:/attendance";
     }
     @PostMapping("/{id}/delete") @PreAuthorize("hasRole('ADMIN')")
-    public String delete(@PathVariable Long id,RedirectAttributes flash) { repository.deleteById(id); flash.addFlashAttribute("success","Operación completada correctamente");return "redirect:/attendance";}
+    public String delete(@PathVariable Long id,RedirectAttributes flash) { service.delete(id); flash.addFlashAttribute("success","Operación completada correctamente");return "redirect:/attendance";}
 }

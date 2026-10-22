@@ -17,6 +17,7 @@ temas de trabajo, no evidencia de que una persona distinta programó cada una.
 | `codex/consultas` | Filtros de miembros y pagos | Parámetros, consulta JPA y resultados en pantalla |
 | `codex/pruebas-permisos` | Pruebas de cambios de estado y CSRF | Diferencia entre un rechazo por rol y uno por token CSRF |
 | `codex/entrega-local` | Ejecución, importación al IDE y guía | Maven, JAR, perfil local y archivo launch |
+| `codex/cierre-sustentacion` | Servicios de mantenimientos y pruebas adicionales | Guardado transaccional, 91 pruebas habituales y cuatro casos en SQL Server aislado |
 
 Cada rama nace de la versión integrada disponible en ese momento. Las etapas
 dependen de las anteriores: no son aplicaciones independientes. Se
@@ -80,8 +81,10 @@ a comprobar que se lanzó cualquier excepción.
 **¿Para qué una prueba transaccional adicional?** La prueba con Mockito aísla
 las decisiones del servicio, pero no usa una base real ni el proxy transaccional
 de Spring. La prueba con H2 usa JPA y Spring, verifica filas y ocupación, y
-fuerza un fallo para comprobar el rollback. Sigue pendiente ensayar concurrencia
-específica de SQL Server; H2 no reemplaza esa comprobación.
+fuerza un fallo para comprobar el rollback. La suite adicional usa el motor
+SQL Server. Los cuatro casos de `SqlServerConcurrencyIT`
+aportan esa comprobación para último cupo, duplicado y cancelación simultáneos,
+además de rollback. No equivalen a una prueba de carga exhaustiva.
 
 **¿Qué ocurre si RECEPCION envía INACTIVO manualmente?** Los guardados de
 miembros, membresías y clases consultan `RecordStatePolicy`; si intenta cambiar

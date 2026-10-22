@@ -77,4 +77,27 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>sqlserver-it</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <argLine>-Djava.library.path="${project.basedir}/native/windows-x64"</argLine>
+                            <includes><include>**/SqlServerConcurrencyIT.java</include></includes>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals><goal>integration-test</goal><goal>verify</goal></goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
